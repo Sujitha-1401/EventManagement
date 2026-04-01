@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo"><a href="index.html" style="text-decoration:none; color:var(--primary-color)">Campus
+                        Connect Lite</a></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <div class="glass-card auth-box">
+            <h2 style="margin-bottom: 20px;">Create Account</h2>
+            <form id="signupForm">
+                <div class="form-group">
+                    <label>Full Name / Club Name</label>
+                    <input type="text" id="name" class="form-control" placeholder="Enter name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" class="form-control" placeholder="Enter email" required>
+                </div>
+                <div class="form-group">
+                    <label>Pasword</label>
+                    <input type="password" id="password" class="form-control" placeholder="Create password" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm password" required>
+                </div>
+                <div class="form-group">
+                    <label>College Name</label>
+                    <select id="college" class="form-control" required>
+                        <option value="">Select College</option>
+                        <option value="VVIT">VVIT</option>
+                        <option value="SRM">SRM</option>
+                        <option value="VIT">VIT</option>
+                        <option value="IIT">IIT</option>
+                        <option value="NIT">NIT</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>I am a...</label>
+                    <select id="role" class="form-control" onchange="toggleDescription()">
+                        <option value="student">Student</option>
+                        <option value="club">Club Organizer</option>
+                    </select>
+                </div>
+                <div class="form-group" id="descGroup" style="display: none;">
+                    <label>Club Description</label>
+                    <textarea id="description" class="form-control" placeholder="About the club"></textarea>
+
+                    <label style="margin-top:15px;">Club Passkey (Optional for Instant Verification)</label>
+                    <input type="text" id="clubCode" class="form-control" placeholder="Enter Admin Passkey">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Sign Up</button>
+            </form>
+            <p style="margin-top: 15px; color: var(--text-muted);">
+                Already have an account? <a href="login.html" style="color: var(--primary-color);">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Check URL params for role
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam) {
+            document.getElementById('role').value = roleParam;
+            toggleDescription();
+        }
+
+        function toggleDescription() {
+            const role = document.getElementById('role').value;
+            const descGroup = document.getElementById('descGroup');
+            if (role === 'club') {
+                descGroup.style.display = 'block';
+            } else {
+                descGroup.style.display = 'none';
+            }
+        }
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const college = document.getElementById('college').value;
+            const role = document.getElementById('role').value;
+            const description = document.getElementById('description').value;
+            const clubCode = document.getElementById('clubCode').value;
+
+            // Validation
+            if (!name.trim()) {
+                alert('Full Name is required.');
+                return;
+            }
+            if (!isValidEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long.');
+                return;
+            }
+            if (password !== confirmPassword) {
+                alert('Passwords do not match.');
+                return;
+            }
+            if (!college) {
+                alert('Please select a college.');
+                return;
+            }
+            if (!role) {
+                alert('Please select a role.');
+                return;
+            }
+
+            try {
+                const data = await fetchAPI('/auth/signup', 'POST', {
+                    name, email, password, college, role, description, clubCode
+                });
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('user', JSON.stringify(data));
+
+                redirectUser(data.role);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

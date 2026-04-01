@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Campus Connect Lite</div>
+                <div class="nav-links" id="navLinks">
+                    <!-- Populated by JS -->
+                    <a href="signup.html" class="btn">Get Started</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            if (token && role) {
+                const nav = document.getElementById('navLinks');
+                let dashboardLink = 'dashboard-student.html';
+                if (role === 'club') dashboardLink = 'dashboard-club.html';
+                if (role === 'admin') dashboardLink = 'dashboard-admin.html';
+
+                nav.innerHTML = `
+                    <a href="${dashboardLink}" class="btn">Go to Dashboard</a>
+                    <button onclick="localStorage.clear(); window.location.reload();" class="btn btn-outline" style="margin-left:10px;">Logout</button>
+                `;
+            }
+        });
+    </script>
+
+    <section class="hero">
+        <div class="container">
+            <h1>The Future of College Events</h1>
+            <p>Plan, organize, and join events with the smartest platform built for students and clubs. AI-powered
+                tools, smooth management, and instant engagement.</p>
+            <div class="cta-buttons">
+                <a href="signup.html" class="btn">Join As Student</a>
+                <a href="signup.html?role=club" class="btn btn-outline" style="margin-left: 10px;">Create Club</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="container" style="padding: 50px 0;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+            <div class="glass-card">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🎓</div>
+                <h3>Student Hub</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Access all campus events, workshops, and seminars
+                    in one place. Register instantly and track your participation.</p>
+            </div>
+            <div class="glass-card">
+                <div style="font-size: 2rem; margin-bottom: 10px;">🚀</div>
+                <h3>Club Management</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Empower your club with advanced tools. Smart
+                    venue booking, AI layout planning, and seamless event promotion.</p>
+            </div>
+            <div class="glass-card">
+                <div style="font-size: 2rem; margin-bottom: 10px;">⚡</div>
+                <h3>Real-Time Connect</h3>
+                <p style="color: var(--text-muted); margin-top: 10px;">Stay updated with instant notifications, live
+                    availability checks, and conflict-free scheduling.</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 50px; text-align: center;">
+            <h2 style="margin-bottom: 20px;">Why Choose Campus Connect Lite?</h2>
+            <p style="max-width: 600px; margin: 0 auto; color: var(--text-muted);">
+                We built this platform to bridge the gap between students and campus activities. No more missed
+                opportunities or booking conflicts.
+            </p>
+        </div>
+    </section>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>

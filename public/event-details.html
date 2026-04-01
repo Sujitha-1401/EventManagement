@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Details - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Campus Connect Lite</div>
+                <div class="nav-links">
+                    <button onclick="goHome()" class="btn btn-outline" style="margin-right: 10px;">Home</button>
+                    <button onclick="window.history.back()" class="btn btn-outline">Back</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="padding: 40px 20px;">
+        <div id="loading">Loading details...</div>
+        <div id="eventContent" style="display: none;">
+            <div class="glass-card">
+                <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <img id="eventPoster" src="" style="width: 100%; border-radius: 12px; object-fit: cover;"
+                            alt="Event Poster">
+                    </div>
+                    <div style="flex: 1; min-width: 300px;">
+                        <h1 id="eventTitle" style="font-size: 2.5rem; color: var(--secondary-color);"></h1>
+                        <p id="eventMeta" style="color: var(--text-muted); margin: 15px 0; font-size: 1.1rem;"></p>
+                        <p id="eventDesc" style="line-height: 1.8; margin-bottom: 30px;"></p>
+
+                        <div id="actionButtons">
+                            <!-- populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Registration Modal -->
+        <div id="regModal" class="modal" 
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow-y: auto;">
+            
+            <div class="glass-card"
+                style="width: 100%; max-width: 600px; padding: 40px; position: relative; margin: 20px;">
+                <button onclick="closeRegModal()" 
+                    style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                
+                <div id="alreadyRegistered" style="display: none; text-align: center;">
+                    <div
+                        style="background: rgba(46, 204, 113, 0.2); padding: 30px; border-radius: 12px; border: 2px solid #2ecc71;">
+                        
+                        <i class="fas fa-check-circle"
+                            style="font-size: 4rem; color: #2ecc71; margin-bottom: 20px;"></i>
+                        <h3 style="color: #2ecc71; margin-bottom: 15px;">Already Registered!</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 25px;">You have already registered for this
+                            event.</p>
+                        <button onclick="closeRegModal()" class="btn">Close</button>
+                    </div>
+                </div>
+                
+                <div id="registrationForm">
+                    <h3 style="margin-bottom: 10px;">Event Registration</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 25px;">Please fill in your details to register
+                    </p>
+                    
+                    <form id="regForm" onsubmit="handleRegistration(event)" 
+                        style="display: flex; flex-direction: column; gap: 20px;">
+                        
+                        <!-- Step 1: Personal Details -->
+                        <div id="step1" class="form-step">
+                            <h4 style="margin-bottom: 15px; color: var(--primary-color);">Personal Information</h4>
+                            <div style="display: grid; gap: 15px;">
+                                <input type="text" name="name" id="regName" class="form-control"
+                                    placeholder="Full Name *" required>
+                                <input type="email" name="email" id="regEmail" class="form-control"
+                                    placeholder="Email Address *" required>
+                                <input type="tel" name="phone" id="regPhone" class="form-control"
+                                    placeholder="Phone Number *" required pattern="[0-9]{10}">
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Academic Details -->
+                        <div id="step2" class="form-step">
+                            <h4 style="margin-bottom: 15px; color: var(--primary-color);">Academic Information</h4>
+                            <div style="display: grid; gap: 15px;">
+                                <input type="text" name="rollNo" id="regRoll" class="form-control"
+                                    placeholder="Roll Number *" required>
+                                <input type="text" name="college" id="regCollege" class="form-control"
+                                    placeholder="College Name *" required>
+                                <input type="text" name="department" id="regDepartment" class="form-control"
+                                    placeholder="Department (e.g., CSE, ECE)">
+                                <select name="year" id="regYear" class="form-control">
+                                    <option value="">Select Year (Optional)</option>
+                                    <option value="1st Year">1st Year</option>
+                                    <option value="2nd Year">2nd Year</option>
+                                    <option value="3rd Year">3rd Year</option>
+                                    <option value="4th Year">4th Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn" style="width: 100%; padding: 15px; font-size: 1.1rem;">
+                            <i class="fas fa-check-circle"></i> Confirm Registration
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Success/QR Modal -->
+        <div id="qrModal" class="modal" 
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; overflow-y: auto;">
+            
+            <div class="glass-card" 
+                style="width: 100%; max-width: 500px; padding: 40px; position: relative; text-align: center; margin: 20px;">
+                
+                <button onclick="closeQrModal()" 
+                    style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                
+                <div
+                    style="background: rgba(46, 204, 113, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 25px;">
+                    
+                    <i class="fas fa-check-circle" style="font-size: 3rem; color: #2ecc71; margin-bottom: 10px;"></i>
+                    <h3 style="color: #2ecc71; margin-bottom: 5px;">Registration Successful!</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Your event registration is confirmed</p>
+                </div>
+                
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 100%; border-radius: 8px;">
+                </div>
+                
+                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> Show this QR code at the event entrance
+                </p>
+                
+                <div
+                    style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Shareable Registration
+                        Link:</p>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="shareableLink" readonly 
+                            style="flex: 1; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; border-radius: 6px; font-size: 0.85rem;">
+                        <button onclick="copyShareableLink()" class="btn btn-outline" style="padding: 10px 20px;">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="downloadQR()" class="btn btn-outline">
+                        <i class="fas fa-download"></i> Download QR
+                    </button>
+                    <button onclick="closeQrModal()" class="btn">
+                        Done
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="glass-card" style="margin-top: 30px;">
+            <h3>Comments & Discussion</h3>
+            <div id="commentsList" style="margin: 20px 0; max-height: 300px; overflow-y: auto;">
+                <!-- Comments here -->
+            </div>
+            <form id="commentForm" style="display: flex; gap: 10px;">
+                <input type="text" id="commentInput" class="form-control" placeholder="Write a comment..." required>
+                <button type="submit" class="btn">Post</button>
+            </form>
+        </div>
+    </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        async function loadDetails() {
+            try {
+                const event = await fetchAPI(`/events/${eventId}`);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('eventContent').style.display = 'block';
+
+                document.getElementById('eventTitle').textContent = event.title;
+                document.getElementById('eventDesc').textContent = event.description;
+                document.getElementById('eventPoster').src = event.poster || 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=1000&auto=format&fit=crop';
+                document.getElementById('eventMeta').innerHTML = `
+                    <strong>By:</strong> ${event.organizer.name}<br>
+                    <strong>Date:</strong> ${new Date(event.date).toLocaleDateString()} | <strong>Time:</strong> ${event.time}<br>
+                    <strong>Location:</strong> ${event.location}<br>
+                    <strong>Capacity:</strong> ${event.capacity || 'Unlimited'}
+                `;
+
+                // Render Action Button based on Role
+                const actionDiv = document.getElementById('actionButtons');
+                if (user && user.role === 'student') {
+                    // Check if already registered
+                    checkRegistrationStatus();
+                } else if (user && (user.role === 'club' || user.role === 'admin')) {
+                    // If owner, show attendees
+                    if (event.organizer._id === user._id || user.role === 'admin') {
+                        loadAttendees(eventId);
+                        actionDiv.innerHTML += `
+                            <p class="text-muted" style="margin-top: 10px;">You are viewing this as an Organizer/Admin.</p>
+                            <a href="planner.html?id=${eventId}" class="btn btn-outline" style="margin-top: 10px;">Edit 2D Layout</a>
+                        `;
+                    } else {
+                        actionDiv.innerHTML = `<p class="text-muted">You are viewing this as an Organizer/Admin.</p>`;
+                    }
+                } else {
+                    actionDiv.innerHTML = `<a href="login.html" class="btn">Login to Register</a>`;
+                }
+
+                // Show "View Layout" for everyone if layout exists
+                if (event.layout) {
+                    // Check if button already exists to prevent duplicate (if organizer)
+                    if (!actionDiv.innerHTML.includes('Edit 2D Layout')) {
+                        actionDiv.innerHTML += `<a href="planner.html?id=${eventId}&readonly=true" class="btn btn-outline" style="margin-top: 10px;">View Venue Layout</a>`;
+                    }
+                }
+
+                // Render Comments
+                renderComments(event.comments);
+
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Error loading event details.';
+            }
+        }
+
+        async function loadAttendees(id) {
+            try {
+                const attendees = await fetchAPI(`/events/${id}/attendees`, 'GET', null, getToken());
+                const content = document.getElementById('eventContent');
+
+                const attendeesDiv = document.createElement('div');
+                attendeesDiv.className = 'glass-card';
+                attendeesDiv.style.marginTop = '30px';
+
+                if (attendees.length === 0) {
+                    attendeesDiv.innerHTML = '<h3>Registered Students</h3><p class="text-muted">No registrations yet.</p>';
+                } else {
+                    attendeesDiv.innerHTML = `
+                        <h3>Registered Students (${attendees.length})</h3>
+                        <ul style="margin-top: 15px;">
+                            ${attendees.map(a => `
+                                <li style="border-bottom: 1px solid var(--glass-border); padding: 10px 0;">
+                                    <strong>${a.user.name}</strong> - ${a.user.college} 
+                                    <span style="font-size:0.8rem; color:var(--text-muted)">(${a.user.email})</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                }
+
+                // Append to eventContent before comments
+                const commentsSection = content.querySelectorAll('.glass-card')[1];
+                if (commentsSection) {
+                    content.insertBefore(attendeesDiv, commentsSection);
+                } else {
+                    content.appendChild(attendeesDiv);
+                }
+            } catch (error) {
+                console.error('Error loading attendees', error);
+            }
+        }
+
+        function renderComments(comments) {
+            const list = document.getElementById('commentsList');
+            if (!comments || comments.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-muted)">No comments yet.</p>';
+                return;
+            }
+            list.innerHTML = comments.map(c => `
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+                    <small style="color: var(--secondary-color);">${new Date(c.createdAt).toLocaleDateString()}</small>
+                    <p>${c.text}</p>
+                </div>
+            `).join('');
+        }
+
+        async function checkRegistrationStatus() {
+            const actionDiv = document.getElementById('actionButtons');
+
+            try {
+                const response = await fetchAPI(`/events/${eventId}/check-registration`, 'GET', null, getToken());
+
+                if (response.isRegistered) {
+                    actionDiv.innerHTML = `
+                        <div style="background: rgba(46, 204, 113, 0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #2ecc71;">
+                            <i class="fas fa-check-circle" style="color: #2ecc71;"></i>
+                            <strong style="color: #2ecc71;"> You are already registered for this event</strong>
+                        </div>
+                    `;
+                } else {
+                    actionDiv.innerHTML = `<button onclick="openRegModal()" class="btn">Register Now</button>`;
+                }
+            } catch (error) {
+                console.error('Error checking registration:', error);
+                actionDiv.innerHTML = `<button onclick="openRegModal()" class="btn">Register Now</button>`;
+            }
+        }
+
+        async function openRegModal() {
+            // Check registration status first
+            try {
+                const response = await fetchAPI(`/events/${eventId}/check-registration`, 'GET', null, getToken());
+
+                if (response.isRegistered) {
+                    document.getElementById('registrationForm').style.display = 'none';
+                    document.getElementById('alreadyRegistered').style.display = 'block';
+                } else {
+                    document.getElementById('registrationForm').style.display = 'block';
+                    document.getElementById('alreadyRegistered').style.display = 'none';
+
+                    // Pre-fill form
+                    if (user) {
+                        document.getElementById('regName').value = user.name || '';
+                        document.getElementById('regEmail').value = user.email || '';
+                        document.getElementById('regCollege').value = user.college || '';
+                    }
+                }
+
+                document.getElementById('regModal').style.display = 'flex';
+            } catch (error) {
+                console.error('Error opening registration modal:', error);
+                document.getElementById('regModal').style.display = 'flex';
+            }
+        }
+
+        function closeRegModal() {
+            document.getElementById('regModal').style.display = 'none';
+        }
+
+        function closeQrModal() {
+            document.getElementById('qrModal').style.display = 'none';
+            window.location.reload();
+        }
+
+        async function handleRegistration(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetchAPI(`/events/${eventId}/register`, 'POST', data, getToken());
+
+                if (!response.success) {
+                    if (response.alreadyRegistered) {
+                        alert('You are already registered for this event!');
+                        closeRegModal();
+                        checkRegistrationStatus();
+                    } else {
+                        alert(response.message || 'Registration failed');
+                    }
+                    return;
+                }
+
+                closeRegModal();
+
+                // Display QR code and shareable link
+                const registration = response.registration;
+                document.getElementById('qrCodeImage').src = registration.qrCode;
+                document.getElementById('shareableLink').value = registration.shareableLink;
+
+                // Store for download
+                window.currentQRCode = registration.qrCode;
+
+                document.getElementById('qrModal').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                if (error.message && error.message.includes('already registered')) {
+                    alert('You are already registered for this event!');
+                    closeRegModal();
+                    checkRegistrationStatus();
+                } else {
+                    alert(error.message || 'Registration failed. Please try again.');
+                }
+            }
+        }
+
+        function copyShareableLink() {
+            const linkInput = document.getElementById('shareableLink');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999); // For mobile
+
+            navigator.clipboard.writeText(linkInput.value).then(() => {
+                alert('Link copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        function downloadQR() {
+            if (!window.currentQRCode) {
+                alert('QR code not available');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = window.currentQRCode;
+            link.download = `event-registration-qr-${eventId}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = document.getElementById('commentInput').value;
+            try {
+                const updatedComments = await fetchAPI(`/events/${eventId}/comments`, 'POST', { text }, getToken());
+                document.getElementById('commentInput').value = '';
+                renderComments(updatedComments);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        loadDetails();
+    </script>
+</body>
+
+</html>

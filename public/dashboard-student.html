@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/user-badge.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/notifications.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .event-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .event-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .event-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .event-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .event-card:hover img {
+            transform: scale(1.05);
+        }
+
+        .event-meta {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        /* Profile Card Animation */
+        .glass-card {
+            animation: scaleIn 0.6s ease-out backwards;
+        }
+
+        .glass-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .glass-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        /* Sidebar Animation */
+        .sidebar {
+            animation: slideInLeft 0.5s ease-out;
+        }
+
+        /* Profile Avatar Pulse */
+        #profileAvatar {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Button Hover Effects */
+        .btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Loading Animation */
+        #loading {
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <h2>Campus Connect</h2>
+            <p>Student Portal</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="dashboard-student.html" class="active">
+                        <span class="sidebar-menu-icon"><i class="fas fa-home"></i></span>
+                        <span class="sidebar-menu-text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="dashboard-student.html">
+                        <span class="sidebar-menu-icon"><i class="fas fa-calendar-alt"></i></span>
+                        <span class="sidebar-menu-text">Browse Events</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="loadMyRegistrations(); return false;">
+                        <span class="sidebar-menu-icon"><i class="fas fa-ticket-alt"></i></span>
+                        <span class="sidebar-menu-text">My Registrations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="verify-ticket.html">
+                        <span class="sidebar-menu-icon"><i class="fas fa-qrcode"></i></span>
+                        <span class="sidebar-menu-text">Verify Ticket</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="alert('Certificates feature coming soon!'); return false;">
+                        <span class="sidebar-menu-icon"><i class="fas fa-certificate"></i></span>
+                        <span class="sidebar-menu-text">Certificates</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="openEditProfile(); return false;">
+                        <span class="sidebar-menu-icon"><i class="fas fa-user-circle"></i></span>
+                        <span class="sidebar-menu-text">Profile</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="alert('Settings coming soon!'); return false;">
+                        <span class="sidebar-menu-icon"><i class="fas fa-cog"></i></span>
+                        <span class="sidebar-menu-text">Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <header>
+        <div class="container-fluid">
+            <nav>
+                <div class="logo">Campus Connect Lite</div>
+                <div class="nav-links" style="display: flex; align-items: center; gap: 20px;">
+                    <!-- Notification Bell -->
+                    <div class="notification-bell" onclick="toggleNotifications()">
+                        <i class="fas fa-bell"></i>
+                        <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+                    </div>
+                    <span>Welcome, <span id="userName">Student</span></span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Notification Panel -->
+        <div id="notificationPanel" class="notification-panel">
+            <div class="notification-header">
+                <h3>Notifications</h3>
+                <div class="notification-actions">
+                    <button onclick="markAllAsRead()">Mark all read</button>
+                </div>
+            </div>
+            <div class="notification-list" id="notificationList">
+                <div class="notification-empty">
+                    <i class="fas fa-bell-slash"></i>
+                    <p>No notifications yet</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container main-content-with-sidebar" style="padding: 40px 20px;">
+        <h2>Upcoming Events</h2>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 2;">
+                <div style="margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                    <div style="flex: 1; display:flex; gap:10px;">
+                        <button onclick="showAllEvents()" class="btn btn-outline" id="btnAll">All Events</button>
+                        <button onclick="showMyRegistrations()" class="btn btn-outline" id="btnMy">My
+                            Registrations</button>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="glass-card" style="margin-bottom: 20px; padding: 15px; display: flex; gap: 10px;">
+                    <input type="text" id="searchInput" placeholder="Search events..." class="form-control"
+                        style="flex: 2;">
+                    <select id="categoryFilter" class="form-control" style="flex: 1;">
+                        <option value="">All Categories</option>
+                        <option value="General">General</option>
+                        <option value="Workshop">Workshop</option>
+                        <option value="Hackathon">Hackathon</option>
+                        <option value="Cultural">Cultural</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Seminar">Seminar</option>
+                    </select>
+                </div>
+
+                <div id="loading" style="text-align: center; margin-top: 50px;">Loading events...</div>
+                <div id="eventsGrid" class="event-grid"></div>
+            </div>
+
+            <div style="flex: 1; min-width: 300px;">
+                <!-- Profile Section -->
+                <div class="glass-card" style="margin-bottom: 20px; text-align:center;">
+                    <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%; margin: 0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:2rem; font-weight:bold;"
+                        id="profileAvatar">U</div>
+                    <h3 id="profileName">User</h3>
+                    <p id="profileCollege" style="color:var(--text-muted)">College</p>
+                    <p id="profileEmail" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">email
+                    </p>
+                    <button class="btn btn-outline" onclick="alert('Edit Profile Coming Soon!')">Edit Profile</button>
+                </div>
+
+                <!-- Calendar Widget -->
+                <div class="glass-card">
+                    <div id="calendarWidget"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/calendar.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'student') {
+            window.location.href = 'login.html';
+        }
+
+        // Setup Profile
+        function renderProfile() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            document.getElementById('userName').textContent = user.name;
+            // document.getElementById('headerAvatar').textContent = user.name.charAt(0).toUpperCase();
+
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileCollege').textContent = user.college || 'No College';
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profileAvatar').textContent = user.name.charAt(0).toUpperCase();
+        }
+        renderProfile();
+
+        // Edit Profile Feature
+        document.querySelector('button[onclick="alert(\'Edit Profile Coming Soon!\')"]').onclick = openEditProfile;
+
+        function openEditProfile() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const newName = prompt("Enter new name:", user.name);
+            const newCollege = prompt("Enter new college:", user.college);
+
+            if (newName && newCollege) {
+                updateProfile(newName, newCollege);
+            }
+        }
+
+        async function updateProfile(name, college) {
+            try {
+                const updatedUser = await fetchAPI('/auth/profile', 'PUT', { name, college }, getToken());
+
+                // Update local storage
+                const user = JSON.parse(localStorage.getItem('user'));
+                user.name = updatedUser.name;
+                user.college = updatedUser.college;
+                // If token is rotated: localStorage.setItem('token', updatedUser.token);
+                localStorage.setItem('user', JSON.stringify(user));
+
+                alert('Profile updated successfully!');
+                renderProfile();
+            } catch (error) {
+                console.error(error);
+                alert(error.message || 'Error updating profile');
+            }
+        }
+
+        // Global calendar instance and events data
+        let calendar;
+        let allEvents = []; // Store for filtering
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        async function loadEvents() {
+            setActiveButton('btnAll');
+            try {
+                const events = await fetchAPI('/events', 'GET', null, getToken());
+
+                // DEBUG: Show ALL events to ensure data is Loading
+                // const today = new Date();
+                // today.setHours(0, 0, 0, 0);
+                // const upcomingEvents = events.filter(...) 
+
+                // Just show everything for now
+                const upcomingEvents = events;
+
+                // 2. Sort by Date Ascending (Nearest date first)
+                upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                allEvents = upcomingEvents; // Save for filtering
+
+                renderEvents(upcomingEvents);
+
+                // Init Calendar with events
+                if (!calendar) {
+                    calendar = new Calendar('calendarWidget', events);
+                }
+            } catch (error) {
+                // If filtering fails, fallback to showing all events but warn
+                console.warn('Error filtering events:', error);
+
+                // Fallback: Show raw list if possible, or just log error
+                // renderEvents(events); // events might be undefined if fetch failed
+
+                document.getElementById('loading').textContent = `Error loading events: ${error.message}`;
+                console.error('Full error details:', error);
+            }
+        }
+
+        async function showMyRegistrations() {
+            setActiveButton('btnMy');
+            document.getElementById('eventsGrid').innerHTML = '';
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const regs = await fetchAPI('/users/registrations', 'GET', null, getToken());
+                const events = regs.map(r => r.event);
+                renderEvents(events, true);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function setActiveButton(id) {
+            document.querySelectorAll('button[id^="btn"]').forEach(btn => {
+                btn.style.background = 'transparent';
+                btn.style.color = 'var(--primary-color)';
+            });
+            const active = document.getElementById(id);
+            active.style.background = 'var(--primary-color)';
+            active.style.color = '#fff';
+        }
+
+        function renderEvents(events, isRegistration = false) {
+            const grid = document.getElementById('eventsGrid');
+            document.getElementById('loading').style.display = 'none';
+
+            if (!events || events.length === 0) {
+                grid.innerHTML = '<p>No events found.</p>';
+                return;
+            }
+
+            grid.innerHTML = events.map((event, index) => `
+                <div class="glass-card event-card card-reveal" style="animation-delay: ${index * 0.1}s;">
+                    <img src="${event.poster || 'https://via.placeholder.com/300x180?text=No+Poster'}" alt="${event.title}">
+                    <h3>${event.title}</h3>
+                    <div class="event-meta">
+                        <p>📅 ${new Date(event.date).toLocaleDateString()} at ${event.time}</p>
+                        <p>📍 ${event.location}</p>
+                    </div>
+                    ${isRegistration ? '<span style="background:var(--accent-color); padding: 4px 8px; border-radius:4px; font-size:0.8rem; color:#000; font-weight:bold;">Registered</span>' : ''}
+                    <button onclick="viewEvent('${event._id}')" class="btn" style="width: 100%; margin-top: 15px;">View Details</button>
+                </div>
+            `).join('');
+        }
+
+        function showAllEvents() {
+            loadEvents();
+        }
+
+        function viewEvent(id) {
+            window.location.href = `event-details.html?id=${id}`;
+        }
+
+        // Filtering Logic
+        function filterEvents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+
+            const filtered = allEvents.filter(event => {
+                const title = event.title ? event.title.toLowerCase() : '';
+                const desc = event.description ? event.description.toLowerCase() : '';
+                const matchesSearch = title.includes(searchTerm) || desc.includes(searchTerm);
+
+                // If event has no category, treat it as 'General' or just match if category filter is empty
+                const eventCategory = event.category || 'General';
+                const matchesCategory = category ? (eventCategory === category) : true;
+
+                return matchesSearch && matchesCategory;
+            });
+
+            renderEvents(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterEvents);
+        document.getElementById('categoryFilter').addEventListener('change', filterEvents);
+
+        loadEvents();
+
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+
+        // Load user's registrations
+        async function loadMyRegistrations() {
+            try {
+                const registrations = await fetchAPI('/events/my-registrations', 'GET', null, getToken());
+
+                const container = document.getElementById('eventsGrid');
+                const heading = document.querySelector('.main-content-with-sidebar h2');
+                heading.textContent = 'My Registrations';
+                document.getElementById('loading').style.display = 'none';
+
+                if (registrations.length === 0) {
+                    container.innerHTML = `
+                        <div class="glass-card" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-ticket-alt" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 20px;"></i>
+                            <h3>No Registrations Yet</h3>
+                            <p style="color: var(--text-muted);">You haven't registered for any events yet. Browse events to get started!</p>
+                            <button class="btn" onclick="loadEvents()" style="margin-top: 20px;">
+                                <i class="fas fa-calendar"></i> Browse Events
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = registrations.map(reg => {
+                    const event = reg.event;
+                    if (!event) return '';
+
+                    const eventDate = new Date(event.date);
+                    const formattedDate = eventDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+
+                    const registeredDate = new Date(reg.registeredAt);
+                    const formattedRegDate = registeredDate.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                    });
+
+                    return `
+                        <div class="glass-card event-card">
+                            <div class="event-header">
+                                <h3>${event.title}</h3>
+                                <span class="event-badge" style="background: #2ecc71;">Registered</span>
+                            </div>
+                            <p class="event-description">${event.description || 'No description'}</p>
+                            <div class="event-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>${formattedDate}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>${event.time}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>${event.location}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-tag"></i>
+                                    <span>${event.category}</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                <small style="color: var(--text-muted);">
+                                    <i class="fas fa-check-circle"></i> Registered on ${formattedRegDate}
+                                </small>
+                            </div>
+                            <div class="event-actions">
+                                <a href="event-details.html?id=${event._id}" class="btn btn-outline">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+                alert('Failed to load your registrations');
+            }
+        }
+
+        // ============================================
+        // NOTIFICATION SYSTEM
+        // ============================================
+        let notificationsOpen = false;
+
+        async function loadNotifications() {
+            try {
+                const response = await fetchAPI('/notifications', 'GET', null, getToken());
+
+                if (response.success) {
+                    displayNotifications(response.notifications);
+                    updateNotificationBadge(response.unreadCount);
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        function displayNotifications(notifications) {
+            const list = document.getElementById('notificationList');
+
+            if (!notifications || notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>No notifications yet</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = notifications.map(notif => {
+                const timeAgo = getTimeAgo(new Date(notif.createdAt));
+                const typeClass = `notification-type-${notif.type}`;
+                const typeLabel = notif.type.replace(/_/g, ' ').toUpperCase();
+
+                return `
+                    <div class="notification-item ${!notif.read ? 'unread' : ''}" 
+                         onclick="handleNotificationClick('${notif._id}', '${notif.event ? notif.event._id : ''}')">
+                        <span class="notification-type-badge ${typeClass}">${typeLabel}</span>
+                        <div class="notification-title">${notif.title}</div>
+                        <div class="notification-message">${notif.message}</div>
+                        <div class="notification-time">
+                            <i class="fas fa-clock"></i>
+                            ${timeAgo}
+                        </div>
+                        <button class="notification-delete" onclick="deleteNotification(event, '${notif._id}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            notificationsOpen = !notificationsOpen;
+
+            if (notificationsOpen) {
+                panel.classList.add('show');
+                loadNotifications();
+            } else {
+                panel.classList.remove('show');
+            }
+        }
+
+        async function handleNotificationClick(notifId, eventId) {
+            // Mark as read
+            try {
+                await fetchAPI(`/notifications/${notifId}/read`, 'PUT', null, getToken());
+                loadNotifications(); // Refresh
+
+                // Navigate to event if exists
+                if (eventId && eventId !== 'null') {
+                    window.location.href = `event-details.html?id=${eventId}`;
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        async function markAllAsRead() {
+            try {
+                await fetchAPI('/notifications/read-all', 'PUT', null, getToken());
+                loadNotifications();
+            } catch (error) {
+                console.error('Error marking all as read:', error);
+                alert('Failed to mark all as read');
+            }
+        }
+
+        async function deleteNotification(event, notifId) {
+            event.stopPropagation(); // Prevent notification click
+
+            try {
+                await fetchAPI(`/notifications/${notifId}`, 'DELETE', null, getToken());
+                loadNotifications();
+            } catch (error) {
+                console.error('Error deleting notification:', error);
+                alert('Failed to delete notification');
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval > 1 ? 's' : ''} ago`;
+                }
+            }
+
+            return 'Just now';
+        }
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', function (event) {
+            const panel = document.getElementById('notificationPanel');
+            const bell = document.querySelector('.notification-bell');
+
+            if (notificationsOpen && !panel.contains(event.target) && !bell.contains(event.target)) {
+                toggleNotifications();
+            }
+        });
+
+        // Load notifications on page load and refresh every 30 seconds
+        loadNotifications();
+        setInterval(loadNotifications, 30000);
+    </script>
+</body>
+
+</html>

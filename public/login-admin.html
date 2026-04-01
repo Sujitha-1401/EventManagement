@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo"><a href="index.html" style="text-decoration:none; color:var(--primary-color)">Campus
+                        Connect Lite</a></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <div class="glass-card auth-box" style="border: 1px solid #e17055;">
+            <h2 style="margin-bottom: 20px; color: #e17055;">Admin Access</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Admin Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="admin@campus.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; background: #e17055;">Login as Admin</button>
+            </form>
+            <p style="margin-top: 15px; color: var(--text-muted);">
+                Not an admin? <a href="login.html" style="color: var(--primary-color);">User Login</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const data = await fetchAPI('/auth/login', 'POST', { email, password });
+
+                if (data.role !== 'admin') {
+                    alert('Access Denied: You are not an administrator.');
+                    return;
+                }
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('user', JSON.stringify(data));
+
+                redirectUser(data.role);
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

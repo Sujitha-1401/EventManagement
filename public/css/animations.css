@@ -1,0 +1,494 @@
+/* ============================================
+   CAMPUS CONNECT LITE - CINEMATIC ANIMATIONS
+   Professional-grade animations for dashboards
+   ============================================ */
+
+/* ==================== KEYFRAMES ==================== */
+
+/* Card Reveal Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Pulse Animations for Status Indicators */
+@keyframes pulseGreen {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(46, 204, 113, 0);
+    }
+}
+
+@keyframes pulseRed {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+}
+
+@keyframes pulseBlue {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(52, 152, 219, 0);
+    }
+}
+
+/* Glow Effects */
+@keyframes glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(138, 43, 226, 0.8);
+    }
+}
+
+@keyframes glowGreen {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 30px rgba(46, 204, 113, 0.8);
+    }
+}
+
+/* Background Animations */
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes floatSlow {
+
+    0%,
+    100% {
+        transform: translateY(0px) translateX(0px);
+    }
+
+    50% {
+        transform: translateY(-10px) translateX(10px);
+    }
+}
+
+/* Shimmer Loading Effect */
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* Ripple Effect */
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Bounce In */
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Rotate In */
+@keyframes rotateIn {
+    from {
+        opacity: 0;
+        transform: rotate(-200deg) scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: rotate(0) scale(1);
+    }
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+
+/* Page Load Animation */
+.page-enter {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Card Animations with Stagger */
+.card-reveal {
+    animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.card-reveal:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.card-reveal:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.card-reveal:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.card-reveal:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.card-reveal:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+.card-reveal:nth-child(6) {
+    animation-delay: 0.6s;
+}
+
+.card-reveal:nth-child(7) {
+    animation-delay: 0.7s;
+}
+
+.card-reveal:nth-child(8) {
+    animation-delay: 0.8s;
+}
+
+.card-reveal:nth-child(9) {
+    animation-delay: 0.9s;
+}
+
+/* Slide Animations */
+.slide-in-right {
+    animation: slideInRight 0.6s ease-out;
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.6s ease-out;
+}
+
+.scale-in {
+    animation: scaleIn 0.5s ease-out;
+}
+
+.bounce-in {
+    animation: bounceIn 0.8s ease-out;
+}
+
+.rotate-in {
+    animation: rotateIn 0.6s ease-out;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-available {
+    background: #2ecc71;
+    animation: pulseGreen 2s infinite;
+}
+
+.status-busy {
+    background: #e74c3c;
+    animation: pulseRed 2s infinite;
+}
+
+.status-pending {
+    background: #3498db;
+    animation: pulseBlue 2s infinite;
+}
+
+/* Hover Effects */
+.hover-elevate {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-elevate:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.hover-glow {
+    transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.6);
+    transform: scale(1.02);
+}
+
+.hover-scale {
+    transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+/* Button Ripple Effect */
+.btn-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-ripple:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Animated Background */
+.animated-gradient {
+    background: linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #4facfe);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+}
+
+/* Floating Elements */
+.float-animation {
+    animation: float 3s ease-in-out infinite;
+}
+
+.float-slow {
+    animation: floatSlow 6s ease-in-out infinite;
+}
+
+/* Loading Shimmer */
+.shimmer {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0.05) 100%);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* Counter Animation */
+.counter {
+    font-variant-numeric: tabular-nums;
+    transition: all 0.3s ease;
+}
+
+/* Glowing Border */
+.glow-border {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.glow-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #4facfe);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.glow-border:hover::before {
+    opacity: 1;
+    animation: gradientShift 3s ease infinite;
+}
+
+/* Skeleton Loading */
+.skeleton {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.15) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 8px;
+}
+
+/* Particle Background */
+.particles-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Smooth Transitions */
+.smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade Transitions */
+.fade-enter {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==================== RESPONSIVE ==================== */
+
+@media (max-width: 768px) {
+    .hover-elevate:hover {
+        transform: translateY(-4px);
+    }
+
+    .card-reveal {
+        animation-duration: 0.4s;
+    }
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Ticket - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/user-badge.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Ticket Verification</div>
+                <div class="nav-links">
+                    <button onclick="goHome()" class="btn btn-outline">Home</button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="padding: 40px 20px; text-align: center;">
+        <div id="loading">Verifying Ticket...</div>
+
+        <div id="result" style="display: none; max-width: 500px; margin: 0 auto;">
+            <!-- Content Injected Here -->
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('id');
+
+        async function verifyTicket() {
+            const resultDiv = document.getElementById('result');
+            const loadingDiv = document.getElementById('loading');
+
+            if (!ticketId) {
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div class="glass-card" style="border: 2px solid #e74c3c; color: #e74c3c;">
+                        <h2>Error</h2>
+                        <p>No ticket ID provided.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                // Public endpoint call
+                const res = await fetch(`/api/events/registrations/${ticketId}`);
+
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                if (res.ok) {
+                    const data = await res.json();
+                    resultDiv.innerHTML = `
+                        <div class="glass-card" style="border: 2px solid #2ecc71;">
+                            <div style="width: 60px; height: 60px; background: #2ecc71; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <h2 style="color: #2ecc71;">Verified Valid Ticket</h2>
+                            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 20px 0;">
+                            
+                            <div style="text-align: left;">
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">Event</p>
+                                <h3 style="margin-bottom: 15px;">${data.event.title}</h3>
+                                
+                                <p style="color: var(--text-muted); font-size: 0.9rem;">Attendee</p>
+                                <h4 style="margin-bottom: 5px;">${data.name}</h4>
+                                <p style="margin-bottom: 15px;">${data.rollNo} | ${data.college}</p>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div>
+                                        <p style="color: var(--text-muted); font-size: 0.8rem;">Date</p>
+                                        <p>${new Date(data.event.date).toLocaleDateString()}</p>
+                                    </div>
+                                    <div>
+                                        <p style="color: var(--text-muted); font-size: 0.8rem;">Location</p>
+                                        <p>${data.event.location}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="glass-card" style="border: 2px solid #e74c3c;">
+                            <div style="width: 60px; height: 60px; background: #e74c3c; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                                <span style="color: white; font-size: 2rem; font-weight: bold;">&times;</span>
+                            </div>
+                            <h2 style="color: #e74c3c;">Invalid Ticket</h2>
+                            <p style="margin-top: 10px;">This ticket could not be verified.</p>
+                        </div>
+                    `;
+                }
+
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<div class="glass-card">Error connecting to server.</div>`;
+            }
+        }
+
+        verifyTicket();
+    </script>
+</body>
+
+</html>
