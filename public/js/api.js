@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://<YOUR_RENDER_BACKEND_URL>/api';
 
 async function fetchAPI(endpoint, method = 'GET', body = null, token = null) {
     const headers = {
