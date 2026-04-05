@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Layout Planner - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .planner-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .toolbox {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        canvas {
+            border: 2px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">Layout Planner</div>
+                <div class="nav-links">
+                    <a href="dashboard-club.html">Back to Dashboard</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="padding: 40px 20px;">
+        <h2>Design Event Layout</h2>
+        <div class="planner-container">
+            <div class="glass-card toolbox">
+                <h3>Toolbox</h3>
+                <button onclick="planner.addItem('stage')" class="btn btn-outline" style="width: 100%;">Add
+                    Stage</button>
+                <button onclick="planner.addItem('table')" class="btn btn-outline" style="width: 100%;">Add
+                    Table</button>
+                <button onclick="planner.addItem('chair')" class="btn btn-outline" style="width: 100%;">Add
+                    Chair</button>
+                <hr style="border-color: var(--glass-border);">
+                <button onclick="saveLayout()" class="btn" style="width: 100%;">Save Layout</button>
+            </div>
+            <div>
+                <canvas id="plannerCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/layout-planner.js"></script>
+    <script>
+        const planner = new LayoutPlanner('plannerCanvas');
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+        const isReadOnly = urlParams.get('readonly') === 'true';
+
+        if (isReadOnly) {
+            document.querySelector('.toolbox').style.display = 'none';
+            document.querySelector('.planner-container').style.justifyContent = 'center';
+            // Disable interactions
+            planner.canvas.style.pointerEvents = 'none';
+        }
+
+        async function loadLayout() {
+            if (!eventId) return; // Standalone mode
+
+            try {
+                const event = await fetchAPI(`/events/${eventId}`, 'GET', null, getToken());
+                if (event.layout) {
+                    planner.loadJSON(JSON.stringify(event.layout));
+                }
+            } catch (error) {
+                console.error('Error loading layout:', error);
+            }
+        }
+
+        async function saveLayout() {
+            if (!eventId) {
+                alert('No linked event to save to!');
+                return;
+            }
+
+            const layoutData = JSON.parse(planner.toJSON());
+
+            try {
+                await fetchAPI(`/events/${eventId}/layout`, 'PUT', { layout: layoutData }, getToken());
+                alert('Layout saved successfully!');
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Initialize
+        if (getToken()) {
+            loadLayout();
+        }
+    </script>
+</body>
+
+</html>

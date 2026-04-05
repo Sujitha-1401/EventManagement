@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Registration - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            animation: fadeIn 0.5s ease-out;
+            background: linear-gradient(-45deg, #0a0e27, #1a1f3a, #2d1b4e, #1e3a5f);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite, fadeIn 0.5s ease-out;
+        }
+
+        .verification-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .verification-card {
+            animation: scaleIn 0.8s ease-out;
+        }
+
+        .qr-code-container {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .qr-code-container img {
+            max-width: 300px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .registration-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .detail-item {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            border-radius: 20px;
+            font-weight: 600;
+            color: white;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo"><a href="index.html" style="text-decoration:none; color:var(--primary-color)">Campus
+                        Connect Lite</a></div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="verification-container">
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 20px;"></i>
+            <p>Verifying registration...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <div class="glass-card verification-card">
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <span class="verified-badge">
+                        <i class="fas fa-check-circle"></i>
+                        Registration Verified
+                    </span>
+                </div>
+
+                <h2 id="eventTitle" style="text-align: center; margin-bottom: 10px;"></h2>
+                <p id="eventDetails" style="text-align: center; color: var(--text-muted); margin-bottom: 30px;"></p>
+
+                <div class="qr-code-container">
+                    <h3 style="margin-bottom: 20px;">Your QR Code</h3>
+                    <img id="qrCode" src="" alt="Registration QR Code">
+                    <p style="margin-top: 15px; color: var(--text-muted); font-size: 0.9rem;">
+                        Show this QR code at the event entrance
+                    </p>
+                </div>
+
+                <h3 style="margin: 30px 0 20px 0;">Registration Details</h3>
+                <div class="registration-details" id="registrationDetails">
+                    <!-- Details will be populated here -->
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <button onclick="window.print()" class="btn btn-outline">
+                        <i class="fas fa-print"></i> Print Registration
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="error" style="display: none;">
+            <div class="glass-card error-message">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 20px;"></i>
+                <h3>Registration Not Found</h3>
+                <p id="errorMessage">The registration link is invalid or has expired.</p>
+                <button onclick="window.location.href='index.html'" class="btn" style="margin-top: 20px;">
+                    Go to Homepage
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        async function verifyRegistration() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (!token) {
+                showError('No registration token provided');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/events/registration/${token}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    showError(data.message);
+                    return;
+                }
+
+                displayRegistration(data.registration);
+            } catch (error) {
+                console.error('Verification error:', error);
+                showError('Failed to verify registration. Please try again.');
+            }
+        }
+
+        function displayRegistration(registration) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+
+            // Event details
+            document.getElementById('eventTitle').textContent = registration.event.title;
+            const eventDate = new Date(registration.event.date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('eventDetails').textContent =
+                `${eventDate} at ${registration.event.time} | ${registration.event.location}`;
+
+            // QR Code
+            document.getElementById('qrCode').src = registration.qrCode;
+
+            // Registration details
+            const details = [
+                { label: 'Name', value: registration.name },
+                { label: 'Email', value: registration.email },
+                { label: 'Phone', value: registration.phone },
+                { label: 'Roll No', value: registration.rollNo },
+                { label: 'College', value: registration.college },
+                { label: 'Department', value: registration.department || 'N/A' },
+                { label: 'Year', value: registration.year || 'N/A' },
+                {
+                    label: 'Registered On',
+                    value: new Date(registration.registeredAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })
+                }
+            ];
+
+            const detailsContainer = document.getElementById('registrationDetails');
+            detailsContainer.innerHTML = details.map(detail => `
+                <div class="detail-item">
+                    <div class="detail-label">${detail.label}</div>
+                    <div class="detail-value">${detail.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // Verify on page load
+        verifyRegistration();
+    </script>
+</body>
+
+</html>

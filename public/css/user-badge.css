@@ -1,0 +1,36 @@
+/* User Badge in Header */
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 6px 15px 6px 6px;
+    border-radius: 50px;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
+}
+
+.user-badge:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-color);
+}
+
+.user-avatar-small {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+    /* fallback */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    background-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.user-name-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+}

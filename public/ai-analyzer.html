@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Space Analyzer - Campus Connect Lite</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">AI Analyzer</div>
+                <div class="nav-links">
+                    <a href="dashboard-club.html">Back to Dashboard</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" style="padding: 40px 20px;">
+        <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+            <h2>AI Event Space Analyzer</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Upload a photo of your venue to get capacity
+                estimates and layout suggestions.</p>
+
+            <form id="analyzeForm">
+                <div class="form-group">
+                    <label>Upload Venue Image</label>
+                    <input type="file" id="image" class="form-control" accept="image/*" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Analyze Space</button>
+            </form>
+
+            <div id="loading" style="display: none; text-align: center; margin-top: 20px;">
+                <p>Analyzing image with AI...</p>
+            </div>
+
+            <div id="result" style="display: none; margin-top: 30px; animation: fadeIn 0.5s;">
+                <h3 style="color: var(--accent-color);">Analysis Result</h3>
+                <div style="display: flex; gap: 20px; margin-top: 20px;">
+                    <div style="flex: 1;">
+                        <img id="analyzedImage" src="" style="width: 100%; border-radius: 8px;">
+                    </div>
+                    <div style="flex: 1;">
+                        <h4>Estimated Capacity</h4>
+                        <p id="capacity" style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">0
+                            People</p>
+
+                        <h4 style="margin-top: 20px;">Setup Suggestions</h4>
+                        <ul id="suggestions" style="list-style: disc; margin-left: 20px; color: var(--text-muted);">
+                            <!-- Suggestions -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const file = document.getElementById('image').files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/features/analyze-space', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+
+                document.getElementById('analyzedImage').src = data.imageUrl;
+                document.getElementById('capacity').textContent = `${data.capacity} People`;
+                document.getElementById('suggestions').innerHTML = data.setupSuggestions.map(s => `<li>${s}</li>`).join('');
+
+            } catch (error) {
+                alert('Analysis failed');
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
